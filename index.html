@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#172e43">
+  <title>Хмельницький: історія вулиць</title>
+  <meta name="description" content="Інтерактивна карта вулиць Хмельницького з історіями назв та аудіодовідками.">
+  <link rel="preconnect" href="https://unpkg.com">
+  <link rel="preconnect" href="https://tile.openstreetmap.org">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#" aria-label="На головну">
+      <span class="brand-mark">Х</span>
+      <span><strong>ХМЕЛЬНИЦЬКИЙ</strong><small>ІСТОРІЯ ВУЛИЦЬ</small></span>
+    </a>
+    <span class="top-note">Місто, яке розповідає</span>
+  </header>
+
+  <main>
+    <section class="intro">
+      <div class="intro-copy">
+        <p class="eyebrow">ІНТЕРАКТИВНИЙ КРАЄЗНАВЧИЙ ПРОЄКТ</p>
+        <h1>Вулиці, які<br><em>розповідають історію</em></h1>
+        <p class="lead">Досліджуйте назви вулиць Хмельницького, дізнавайтеся про їхнє минуле та слухайте короткі аудіоісторії.</p>
+      </div>
+      <div class="intro-stats">
+        <div><strong id="street-count">—</strong><span>вулиць на карті</span></div>
+        <div><strong id="story-count">0</strong><span>підготовлених історій</span></div>
+      </div>
+    </section>
+
+    <section class="workspace" aria-label="Інтерактивна карта вулиць">
+      <aside class="sidebar">
+        <div class="search-wrap">
+          <label for="street-search">Знайти вулицю</label>
+          <div class="search-box"><span aria-hidden="true">⌕</span><input id="street-search" type="search" placeholder="Введіть назву вулиці…" autocomplete="off"><button id="clear-search" aria-label="Очистити пошук">×</button></div>
+          <p class="hint">Пошук працює за сучасною та попередньою назвою (якщо вона внесена до довідника).</p>
+        </div>
+        <div class="list-heading"><strong>Вулиці міста</strong><span id="result-count">Завантаження…</span></div>
+        <div id="street-list" class="street-list"><div class="loading"><span class="spinner"></span> Завантажуємо карту та перелік вулиць…</div></div>
+        <div class="data-note"><span class="dot"></span><span>Геодані карти: OpenStreetMap. Історичні довідки додаються після перевірки джерел.</span></div>
+      </aside>
+
+      <div class="map-area">
+        <div id="map" role="application" aria-label="Карта Хмельницького"></div>
+        <div class="map-legend"><span class="legend-line"></span> Вулиці на карті <span class="legend-dot"></span> Обрана вулиця</div>
+        <button id="locate-city" class="map-control" title="Повернутися до Хмельницького" aria-label="Повернутися до Хмельницького">⌖</button>
+      </div>
+    </section>
+    <p id="status" class="status" role="status">Підключаємо карту…</p>
+  </main>
+
+  <footer>
+    <span>«Хмельницький: історія вулиць»</span>
+    <span>Краєзнавчий цифровий проєкт · <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">© OpenStreetMap contributors</a></span>
+  </footer>
+
+  <div id="street-modal" class="modal-backdrop" hidden>
+    <article class="street-card" role="dialog" aria-modal="true" aria-labelledby="card-title">
+      <button id="close-card" class="close-card" aria-label="Закрити">×</button>
+      <div class="card-kicker"><span class="kicker-dot"></span> ІСТОРІЯ ВУЛИЦІ</div>
+      <h2 id="card-title">Назва вулиці</h2>
+      <p id="card-subtitle" class="card-subtitle">Хмельницький</p>
+      <div class="name-grid">
+        <div class="name-cell"><span>ПОПЕРЕДНЯ НАЗВА</span><strong id="old-name">Інформація уточнюється</strong></div>
+        <div class="name-cell current"><span>СУЧАСНА НАЗВА</span><strong id="new-name">—</strong></div>
+      </div>
+      <div class="story-section">
+        <h3>Чому ця назва?</h3>
+        <p id="story-text">Історична довідка для цієї вулиці ще готується. Ми додамо перевірену інформацію з посиланнями на джерела.</p>
+      </div>
+      <div id="narration-section" class="narration-section" hidden>
+        <h3>Текст аудіодовідки</h3>
+        <p id="narration-text"></p>
+        <span class="draft-label">Текст підготовлено для дикторського запису</span>
+      </div>
+      <div class="audio-panel">
+        <div class="audio-icon">♫</div>
+        <div class="audio-main">
+          <strong>Аудіоісторія</strong>
+          <span id="audio-description">Чоловічий дикторський голос · до 1 хвилини</span>
+          <audio id="street-audio" controls preload="none"></audio>
+          <p id="audio-unavailable" class="audio-unavailable">Аудіозапис для цієї вулиці ще готується.</p>
+        </div>
+      </div>
+      <div class="source-row"><span>ДЖЕРЕЛА</span><a id="source-link" href="#" target="_blank" rel="noopener" hidden>Переглянути джерело ↗</a><span id="source-empty">Буде додано разом із перевіреною довідкою</span></div>
+      <p class="accuracy-note">Історичні відомості публікуються лише після перевірки за офіційними документами та краєзнавчими джерелами.</p>
+    </article>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script src="app.js"></script>
+</body>
+</html>
