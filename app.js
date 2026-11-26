@@ -69,10 +69,32 @@ function renderList(query=''){
 search.addEventListener('input',()=>renderList(search.value));
 document.getElementById('clear-search').addEventListener('click',()=>{search.value='';renderList('');search.focus();});
 document.getElementById('locate-city').addEventListener('click',()=>map.fitBounds(CITY.bounds));
-async function loadStories(){
-  try{const r=await fetch('data/stories.json');if(r.ok){const data=await r.json();(data.stories||[]).forEach(s=>{stories[norm(s.name)]=s;(s.aliases||[]).forEach(a=>stories[norm(a)]=s);});}}
-  catch(e){console.warn('Historical story data unavailable',e);}
-  document.getElementById('story-count').textContent=(data.stories||[]).length;
+async function loadStories() {
+  let data = { stories: [] };
+
+  try {
+    const r = await fetch('./data/stories.json');
+
+    if (!r.ok) {
+      throw new Error(`Помилка завантаження stories.json: ${r.status}`);
+    }
+
+    data = await r.json();
+
+    (data.stories || []).forEach(s => {
+      stories[norm(s.name)] = s;
+
+      (s.aliases || []).forEach(a => {
+        stories[norm(a)] = s;
+      });
+    });
+
+  } catch (e) {
+    console.warn('Historical story data unavailable', e);
+  }
+
+  document.getElementById('story-count').textContent =
+    (data.stories || []).length;
 }
 async function loadStreets(){
   const query='[out:json][timeout:45];area["name"="Хмельницький"]["boundary"="administrative"]->.city;(way(area.city)["highway"]["name"];);out geom;';
